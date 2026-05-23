@@ -10,17 +10,25 @@ import { Button } from '../components/ui/button';
 import { ShoppingCart, Star , Eye} from 'lucide-react';
 import { instance } from '../components/Axios_Instance';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTheme } from '../store/useThemeStore';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/cartSlice';
+import { LanguageContext } from '../context/LanguageContext';
+import { use } from 'react';
 
 const ProductList = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [products, setproducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isloading, setisloading] = useState(false);
   const [error, seterror] = useState(null);
-  const [cart, setcart] = useState([]);
   const searchTerm = useRef("");
   const [searchParams, setSearchParams] = useSearchParams();
+  const theme = useTheme((state) => state.theme);
+  const toggleTheme = useTheme((state) => state.toggleTheme);
   const category = searchParams.get('category');
+  const { language  } = use(LanguageContext);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -54,9 +62,8 @@ const ProductList = () => {
     return text.length > limit ? text.substring(0, limit) + '...' : text;
   };
 
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-    alert(`${product.title} added to cart!`);
+  const handleAddToCart = (product) => {
+    dispatch(addToCart(product));
   };
 
   const getCategoryColor = (category) => {
@@ -70,22 +77,19 @@ const ProductList = () => {
   };
 
   return (
-     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6'>
+     <div className={theme === 'light' ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-gradient-to-br from-gray-800 to-gray-900 text-white min-h-screen'}>
       <div className='max-w-7xl mx-auto'>
         <div className='mb-8'>
-          <h1 className='text-4xl font-bold text-gray-900 mb-2'>
-            {category ? `Currently Browsing: ${category}` : 'Our Products'}
+          <h1 className={theme === 'light' ? 'text-4xl font-bold text-gray-900 mb-2' : 'text-4xl font-bold text-white mb-2'}>
+            {category ? `${language === 'en' ? 'Currently Browsing' : 'تصفح حاليا'}: ${category}` : (language === 'en' ? 'Our Products' : 'منتجاتنا')}
           </h1>
-          <p className='text-gray-600'>Discover our amazing collection</p>
-          {cart.length > 0 && (
-            <p className='text-sm text-blue-600 mt-2'>🛒 {cart.length} items in cart</p>
-          )}
+          <p className='text-gray-600'>{language === 'en' ? 'Discover our amazing collection' : 'اكتشف مجموعتنا المذهلة'}</p>
         </div>
 
         <div className="flex space-x-4 mb-8">
-          <Button onClick={() => handleFilter(null)} variant={!category ? 'default' : 'outline'}>All Products</Button>
-          <Button onClick={() => handleFilter('electronics')} variant={category === 'electronics' ? 'default' : 'outline'}>Electronics</Button>
-          <Button onClick={() => handleFilter("women's clothing")} variant={category === "women's clothing" ? 'default' : 'outline'}>Women's Clothing</Button>
+          <Button onClick={() => handleFilter(null)}  className={ !category ? theme === 'light' ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-teal-600 text-white hover:bg-teal-300' : 'bg-gray-700 text-white hover:bg-gray-600'}>All Products</Button>
+          <Button onClick={() => handleFilter('electronics')} className={ category === 'electronics' ?  theme === 'light' ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-teal-600 text-white hover:bg-tealo-300' : 'bg-gray-700 text-white hover:bg-gray-600'}>Electronics</Button>
+          <Button onClick={() => handleFilter("women's clothing")}  className={category === "women's clothing" ? theme === 'light' ?  'bg-teal-600 text-white hover:bg-teal-700' : 'bg-teal-600 text-white hover:bg-teal-300' : 'bg-gray-700 text-white hover:bg-gray-600'}>Women's Clothing</Button>
         </div>
 
         <div className='mb-8 min-w-60'>
@@ -118,7 +122,7 @@ const ProductList = () => {
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className='group h-full'>
-                <Card className='relative overflow-hidden h-full flex flex-col shadow-md'>
+                <Card className={theme === 'light' ? 'relative overflow-hidden h-full flex flex-col shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-white' : 'relative overflow-hidden h-full flex flex-col shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-gray-800 text-white'}>
                   <Skeleton className="h-48 w-full" />
                   <CardHeader className='pb-2 flex-grow'>
                     <Skeleton className="h-4 w-2/3 mb-2" />
@@ -141,12 +145,12 @@ const ProductList = () => {
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {filteredProducts.map((product) => (
               <div key={product.id} className='group h-full'>
-                <Card className='relative overflow-hidden h-full flex flex-col shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105'>
+                <Card className={theme === 'light' ? 'relative overflow-hidden h-full flex flex-col shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-white' : 'relative overflow-hidden h-full flex flex-col shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-gray-800 text-white'}>
                   <div className='relative overflow-hidden bg-gray-200 h-48 flex items-center justify-center'>
                     <img
                       src={product.image}
                       alt={product.title}
-                      className='h-full w-full object-contain p-2 group-hover:scale-110 transition-transform duration-300'
+                      className={theme === 'light' ? 'max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-300' : 'max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-300'}
                     />
 
                     <div className='absolute top-3 right-3 bg-white rounded-lg shadow-lg p-2'>
@@ -162,18 +166,18 @@ const ProductList = () => {
                       </Badge>
                     </div>
 
-                    <CardTitle className='text-lg line-clamp-2 mb-2'>
+                    <CardTitle className={theme === 'light' ? 'text-lg font-semibold text-gray-900 mb-2' : 'text-lg font-semibold text-white mb-2'}>
                       {product.title}
                     </CardTitle>
 
 
-                    <CardDescription className='text-sm text-gray-600 line-clamp-2'>
+                    <CardDescription className={theme === 'light' ? 'text-sm text-gray-600 line-clamp-2' : 'text-sm text-gray-300 line-clamp-2'}>
                       {truncateText(product.description, 80)}
                     </CardDescription>
                   </CardHeader>
 
 
-                  <div className='px-4 py-2 bg-gray-50 border-t border-gray-200'>
+                  <div className={theme === 'light' ? 'px-4 py-2 bg-gray-50 border-t border-gray-200' : 'px-4 py-2 bg-gray-700 border-t border-gray-600'}>
                     <div className='flex items-center justify-between'>
                       <div className='flex items-center gap-1'>
                         <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' />
@@ -184,12 +188,14 @@ const ProductList = () => {
                   </div>
 
 
-                  <CardFooter className='pt-3 border-t flex gap-2'>
+                  <CardFooter className={theme === 'light' ? 'pt-3 border-t bg-white' : 'pt-3 border-t bg-gray-800 text-white'}>
                     <Button
-                      onClick={() => addToCart(product)}
-                      className=' py-5 bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center gap-2 transition-colors'
+                      variant="outline"
+                      size="sm"
+                      className= 'text-white py-5 bg-teal-600  hover:bg-teal-700 hover:text-white flex items-center justify-center gap-2 transition-colors'
+                      onClick={() => handleAddToCart(product)}
                     >
-                      <ShoppingCart className='w-4 h-4' />
+                      <ShoppingCart className="h-4 w-4" />
                       Add to Cart
                     </Button>
                     <Button

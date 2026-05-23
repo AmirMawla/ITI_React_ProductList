@@ -6,8 +6,11 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { Star } from 'lucide-react';
 import { Skeleton } from '../components/ui/skeleton';
-
-
+import { useTheme } from '../store/useThemeStore';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/cartSlice';
+import { LanguageContext } from '../context/LanguageContext';
+import { use } from 'react';
 
 const ProductDetails = () => {
 
@@ -15,6 +18,10 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const theme = useTheme((state) => state.theme);
+    const toggleTheme = useTheme((state) => state.toggleTheme);
+    const dispatch = useDispatch();
+    const {language } = use(LanguageContext);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -59,14 +66,18 @@ const ProductDetails = () => {
         return stars;
     };
 
+    const handleAddToCart = (product) => {
+        dispatch(addToCart(product));
+    };
+
     return (
         <>
-            <div className='bg-gradient-to-br from-gray-50 to-gray-100 min-h-100vh p-6'>
-
+            <div className=' min-h-100vh p-6'>
+                <h1 className="text-3xl font-bold mb-6 text-center">{language === 'en' ? 'Product Details' : 'تفاصيل المنتج'}</h1>
 
                 {isLoading && (
                     <div className="container mx-auto my-12 p-6">
-                        <div className="bg-white rounded-2xl shadow-xl p-8">
+                        <div className={theme === 'light' ? 'bg-white rounded-2xl shadow-xl p-8' : 'bg-gray-800 rounded-2xl shadow-xl p-8'}>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                                 <div>
                                     <Skeleton className="h-[450px] w-full rounded-lg" />
@@ -102,30 +113,36 @@ const ProductDetails = () => {
                     product &&
                     (
                         <div className="container mx-auto my-12 p-6">
-                            <div className="bg-white rounded-2xl shadow-xl p-8">
+                            <div className={theme === 'light' ? 'bg-white rounded-2xl shadow-xl p-8' : 'bg-gray-800 rounded-2xl shadow-xl p-8 text-white'}>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                                    <div className="flex items-center justify-center bg-gray-100 rounded-lg p-8">
+                                    <div className={theme === 'light' ? 'flex items-center justify-center bg-gray-100 rounded-lg p-8' : 'flex items-center justify-center bg-gray-700 rounded-lg p-8 text-white'}>
                                         <img
-                                            className="max-h-[450px] w-auto object-contain"
+                                            className="max-h-[450px] w-auto object-contain "
                                             src={product.image}
                                             alt={product.title}
                                         />
                                     </div>
-                                    <div className="flex flex-col justify-center">
+                                    <div className="flex flex-col justify-center ">
                                         <Badge className={`${getCategoryColor(product.category)} mb-4 self-start`}>{product.category}</Badge>
-                                        <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
+                                        <h1 className={theme === 'light' ? 'text-3xl font-bold text-gray-900 mb-4' : 'text-3xl font-bold text-white mb-4'}>{product.title}</h1>
                                         <div className="flex items-center mb-6">
                                             <div className="flex items-center">
                                                 {renderRating(product.rating)}
                                             </div>
-                                            <p className="ml-3 text-sm font-medium text-gray-500">{product.rating.rate}/5 ({product.rating.count} reviews)</p>
+                                            <p className={theme === 'light' ? 'ml-3 text-sm font-medium text-gray-500' : 'ml-3 text-sm font-medium text-gray-400'}>{product.rating.rate}/5 ({product.rating.count} reviews)</p>
                                         </div>
-                                        <p className="text-gray-700 mb-8">
+                                        <p className={theme === 'light' ? 'text-gray-700 mb-8' : 'text-gray-400 mb-8'}>
                                             {product.description}
                                         </p>
                                         <div className="flex items-center justify-between border-t pt-6">
                                             <h1 className="text-4xl font-bold text-teal-600">${product.price.toFixed(2)}</h1>
-                                            <Button size="lg" className="bg-teal-600 hover:bg-teal-700 text-white text-lg px-8 py-6 cursor-pointer">Add to Cart</Button>
+                                            <Button
+                                                size="lg"
+                                                className="bg-teal-600 text-white hover:bg-teal-700"
+                                                onClick={() => handleAddToCart(product)}
+                                            >
+                                                Add to Cart
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
