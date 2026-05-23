@@ -5,6 +5,7 @@ import { createBrowserRouter , RouterProvider } from 'react-router-dom';
 import User_Layout from './layouts/user_layout.jsx';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
+import Register from './pages/register.jsx';
 import { LanguageProvider } from './context/LanguageContext';
 
 const router = createBrowserRouter(
@@ -36,6 +37,10 @@ const router = createBrowserRouter(
               const module = await import("./pages/cart.jsx")
               return { Component: module.default }
             }
+        },
+        {
+            path: "/register",
+            element: <Register />
         },
           {
             path: "*",

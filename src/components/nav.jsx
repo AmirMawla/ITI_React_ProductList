@@ -57,7 +57,7 @@ const Nav = () => {
                                 </span>
                             )}
                         </Button>
-                        <Button variant="ghost" size="icon" >
+                        <Button variant="ghost" size="icon" onClick={() => navigate('/register')}>
                             <User className={`h-6 w-6 ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`} />
                         </Button>
                         <Button variant="ghost" size="icon" onClick={toggleTheme}>
